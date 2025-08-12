@@ -121,44 +121,36 @@ Follow the detailed setup instructions in [SETUP.md](SETUP.md) to:
 
 ### 3. Run the Application
 ```bash
-# Standard version
+# Interactive RAG Chatbot
 streamlit run rag_demo.py
-
-# Enhanced version with AI Observability & Evaluation
-streamlit run rag_demo_with_evaluation.py
 ```
 
 ## 📊 **AI Observability & Evaluation Framework**
 
-This repository includes a comprehensive evaluation framework powered by **TruLens** and **Snowflake AI Observability**:
+This repository includes a comprehensive evaluation framework using **TruLens** and **Snowflake AI Observability** through a dedicated notebook approach:
 
 ### **🔍 Key Features**
-- **Real-time Tracing**: OpenTelemetry instrumentation of all RAG components
-- **RAG Triad Metrics**: Context Relevance, Groundedness, Answer Relevance
-- **User Feedback**: 5-star rating system with qualitative comments
-- **Performance Monitoring**: Track accuracy and user satisfaction over time
-- **Batch Evaluation**: Systematic testing on CUAD legal contracts dataset
+- **Batch Evaluation**: Systematic testing with RAG triad metrics
+- **Professional Metrics**: Context Relevance, Groundedness, Answer Relevance  
+- **Notebook-Based**: Proper TruLens execution environment
+- **Performance Optimization**: Automatic warehouse scaling
+- **Comprehensive Traces**: Detailed execution analysis
 
 ### **🎯 Evaluation Setup**
 ```bash
 # 1. Install TruLens packages (included in requirements.txt)
 pip install trulens-core==1.5.2 trulens-providers-cortex==1.5.2
 
-# 2. Set up observability database
-# Execute evaluation_setup.ipynb in Snowflake notebook
-
-# 3. Launch with evaluation enabled
-streamlit run rag_demo_with_evaluation.py
+# 2. Open batch_evaluation.ipynb in Snowflake Notebooks
+# 3. Execute all cells for comprehensive evaluation
 ```
-
-**⚠️ Known Issue**: If you encounter `Unsupported statement type 'temporary STAGE'` error, this is a Snowflake limitation (temporary stages not supported). The app gracefully handles this and continues working perfectly with user feedback collection instead of full TruLens observability.
 
 ### **📈 View Results**
 Navigate to **Snowsight → AI & ML → Evaluations** to view:
-- Detailed trace analysis
-- Evaluation metrics dashboard  
-- User feedback analytics
-- Performance trends over time
+- Detailed trace analysis from notebook execution
+- RAG triad metrics dashboard  
+- Individual query performance analysis
+- Comparative evaluation results
 
 **📚 Complete Documentation**: [Evaluation Framework Guide](docs/EVALUATION_FRAMEWORK.md)
 
@@ -170,10 +162,10 @@ snowflake-intelligent-rag-chatbot/
 ├── SETUP.md                      # Detailed setup instructions
 ├── ARCHITECTURE.md               # Technical architecture details
 ├── requirements.txt              # Python dependencies (includes TruLens)
-├── rag_demo.py                   # Standard Streamlit application
-├── rag_demo_with_evaluation.py   # Enhanced app with AI observability
+├── rag_demo.py                   # Main Streamlit application
 ├── setup_notebook.ipynb          # Snowflake setup notebook
-├── evaluation_setup.ipynb        # TruLens evaluation setup
+├── batch_evaluation.ipynb        # TruLens batch evaluation notebook
+├── evaluation_setup.ipynb        # TruLens observability setup
 ├── CUAD_v1/                      # Sample legal contracts dataset
 │   ├── CUAD_v1_README.txt        # Official CUAD documentation
 │   └── full_contract_pdf/        # Sample PDF contracts

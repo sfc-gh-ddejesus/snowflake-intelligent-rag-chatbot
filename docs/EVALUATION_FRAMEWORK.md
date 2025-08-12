@@ -1,6 +1,6 @@
 # 📊 AI Observability & Evaluation Framework
 
-This document provides a comprehensive guide to the evaluation framework implemented for the Intelligent Multi-Stage RAG Chatbot using **TruLens** and **Snowflake AI Observability**.
+This document provides a comprehensive guide to the evaluation framework implemented for the Intelligent Multi-Stage RAG Chatbot using **TruLens** and **Snowflake AI Observability** through a **notebook-based approach**.
 
 ## 🎯 **Overview**
 
