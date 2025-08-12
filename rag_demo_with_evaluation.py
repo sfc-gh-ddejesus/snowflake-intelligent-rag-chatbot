@@ -42,18 +42,19 @@ class InstrumentedRAGChatbot:
     def conditional_instrument(self, span_type=None, attributes=None):
         """Conditional decorator that only applies instrumentation if TruLens is available."""
         def decorator(func):
-            if TRULENS_AVAILABLE and span_type:
-                return instrument(span_type=span_type, attributes=attributes)(func)
+            if TRULENS_AVAILABLE:
+                try:
+                    if span_type and attributes:
+                        return instrument(span_type=span_type, attributes=attributes)(func)
+                    else:
+                        return instrument()(func)  # Basic instrumentation without specific attributes
+                except (AttributeError, ImportError):
+                    # Fallback if specific span types are not available
+                    return instrument()(func)
             return func
         return decorator
     
-    @conditional_instrument(
-        span_type=SpanAttributes.SpanType.AGENT if TRULENS_AVAILABLE else None,
-        attributes={
-            SpanAttributes.AGENT.INPUT: "user_question",
-            SpanAttributes.AGENT.OUTPUT: "return",
-        } if TRULENS_AVAILABLE else None
-    )
+    @conditional_instrument()
     def analyze_query_intent(self, user_question: str) -> Dict[str, Any]:
         """Analyze user query intent with optional instrumentation."""
         prompt = f"""
@@ -82,13 +83,7 @@ class InstrumentedRAGChatbot:
                 "search_queries": [user_question]
             }
     
-    @conditional_instrument(
-        span_type=SpanAttributes.SpanType.RETRIEVAL if TRULENS_AVAILABLE else None,
-        attributes={
-            SpanAttributes.RETRIEVAL.QUERY_TEXT: "query",
-            SpanAttributes.RETRIEVAL.RETRIEVED_CONTEXTS: "return",
-        } if TRULENS_AVAILABLE else None
-    )
+    @conditional_instrument()
     def query_metadata_search_service(self, query: str, limit: int = 50) -> List[Dict]:
         """Query metadata search service with optional instrumentation."""
         try:
@@ -109,13 +104,7 @@ class InstrumentedRAGChatbot:
             st.error(f"Error in metadata search: {e}")
             return []
     
-    @conditional_instrument(
-        span_type=SpanAttributes.SpanType.RETRIEVAL if TRULENS_AVAILABLE else None,
-        attributes={
-            SpanAttributes.RETRIEVAL.QUERY_TEXT: "query",
-            SpanAttributes.RETRIEVAL.RETRIEVED_CONTEXTS: "return",
-        } if TRULENS_AVAILABLE else None
-    )
+    @conditional_instrument()
     def query_chunks_search_service(self, query: str, relevant_filenames: List[str], limit: int = 10) -> List[Dict]:
         """Query chunks search service with filtering and optional instrumentation."""
         try:
@@ -142,13 +131,7 @@ class InstrumentedRAGChatbot:
             st.error(f"Error in chunks search: {e}")
             return []
     
-    @conditional_instrument(
-        span_type=SpanAttributes.SpanType.GENERATION if TRULENS_AVAILABLE else None,
-        attributes={
-            SpanAttributes.GENERATION.INPUT: "user_question",
-            SpanAttributes.GENERATION.OUTPUT: "return",
-        } if TRULENS_AVAILABLE else None
-    )
+    @conditional_instrument()
     def generate_completion(self, user_question: str, context_str: str) -> str:
         """Generate completion with optional instrumentation."""
         prompt = f"""
@@ -164,13 +147,7 @@ class InstrumentedRAGChatbot:
         
         return Complete("claude-4-sonnet", prompt)
     
-    @conditional_instrument(
-        span_type=SpanAttributes.SpanType.RECORD_ROOT if TRULENS_AVAILABLE else None,
-        attributes={
-            SpanAttributes.RECORD_ROOT.INPUT: "user_question",
-            SpanAttributes.RECORD_ROOT.OUTPUT: "return",
-        } if TRULENS_AVAILABLE else None
-    )
+    @conditional_instrument()
     def intelligent_search_orchestrator(self, user_question: str) -> Dict[str, Any]:
         """
         Main orchestrator with full optional instrumentation.
