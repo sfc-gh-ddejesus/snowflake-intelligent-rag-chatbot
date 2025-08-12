@@ -14,3 +14,8 @@ altair>=5.0.0
 
 # For JSON processing (already included in Python 3.11+)
 # json is built-in, no additional package needed
+
+# TruLens AI Observability and Evaluation Framework
+trulens-core==1.5.2
+trulens-providers-cortex==1.5.2
+trulens-connectors-snowflake==1.5.2

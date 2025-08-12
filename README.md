@@ -121,29 +121,68 @@ Follow the detailed setup instructions in [SETUP.md](SETUP.md) to:
 
 ### 3. Run the Application
 ```bash
+# Standard version
 streamlit run rag_demo.py
+
+# Enhanced version with AI Observability & Evaluation
+streamlit run rag_demo_with_evaluation.py
 ```
+
+## 📊 **AI Observability & Evaluation Framework**
+
+This repository includes a comprehensive evaluation framework powered by **TruLens** and **Snowflake AI Observability**:
+
+### **🔍 Key Features**
+- **Real-time Tracing**: OpenTelemetry instrumentation of all RAG components
+- **RAG Triad Metrics**: Context Relevance, Groundedness, Answer Relevance
+- **User Feedback**: 5-star rating system with qualitative comments
+- **Performance Monitoring**: Track accuracy and user satisfaction over time
+- **Batch Evaluation**: Systematic testing on CUAD legal contracts dataset
+
+### **🎯 Evaluation Setup**
+```bash
+# 1. Install TruLens packages (included in requirements.txt)
+pip install trulens-core==1.5.2 trulens-providers-cortex==1.5.2
+
+# 2. Set up observability database
+# Execute evaluation_setup.ipynb in Snowflake notebook
+
+# 3. Launch with evaluation enabled
+streamlit run rag_demo_with_evaluation.py
+```
+
+### **📈 View Results**
+Navigate to **Snowsight → AI & ML → Evaluations** to view:
+- Detailed trace analysis
+- Evaluation metrics dashboard  
+- User feedback analytics
+- Performance trends over time
+
+**📚 Complete Documentation**: [Evaluation Framework Guide](docs/EVALUATION_FRAMEWORK.md)
 
 ## 📁 **Repository Structure**
 
 ```
 snowflake-intelligent-rag-chatbot/
-├── README.md                 # This file
-├── SETUP.md                 # Detailed setup instructions
-├── ARCHITECTURE.md          # Technical architecture details
-├── requirements.txt         # Python dependencies
-├── rag_demo.py             # Main Streamlit application
-├── setup_notebook.ipynb    # Snowflake setup notebook
-├── CUAD_v1/                # Sample legal contracts dataset
-│   ├── CUAD_v1_README.txt  # Official CUAD documentation
-│   └── full_contract_pdf/  # Sample PDF contracts
-│       ├── Part_I/         # Agency, Development agreements
-│       ├── Part_II/        # Distribution, Hosting agreements  
-│       └── Part_III/       # Additional contract samples
-├── docs/                   # Additional documentation
-│   ├── CUAD_SAMPLE_DATA.md # CUAD dataset documentation
-│   └── examples/           # Usage examples
-└── .gitignore              # Git ignore rules
+├── README.md                      # This file
+├── SETUP.md                      # Detailed setup instructions
+├── ARCHITECTURE.md               # Technical architecture details
+├── requirements.txt              # Python dependencies (includes TruLens)
+├── rag_demo.py                   # Standard Streamlit application
+├── rag_demo_with_evaluation.py   # Enhanced app with AI observability
+├── setup_notebook.ipynb          # Snowflake setup notebook
+├── evaluation_setup.ipynb        # TruLens evaluation setup
+├── CUAD_v1/                      # Sample legal contracts dataset
+│   ├── CUAD_v1_README.txt        # Official CUAD documentation
+│   └── full_contract_pdf/        # Sample PDF contracts
+│       ├── Part_I/               # Agency, Development agreements
+│       ├── Part_II/              # Distribution, Hosting agreements  
+│       └── Part_III/             # Additional contract samples
+├── docs/                         # Additional documentation
+│   ├── CUAD_SAMPLE_DATA.md       # CUAD dataset documentation
+│   ├── EVALUATION_FRAMEWORK.md   # AI observability guide
+│   └── examples/                 # Usage examples
+└── .gitignore                    # Git ignore rules
 ```
 
 ## 🔧 **Key Features**
