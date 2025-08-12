@@ -672,6 +672,103 @@ def create_prompt(user_question):
     return final_response, results
 
 
+def build_enhanced_references(results):
+    """
+    Build an enhanced references section with chunk previews and deduplication.
+    
+    Args:
+        results (list): List of search results with filename, file_url, and chunk content
+        
+    Returns:
+        str: Formatted markdown references section
+    """
+    if not results:
+        return ""
+    
+    # Deduplicate by filename and collect chunks per document
+    document_chunks = {}
+    seen_filenames = set()
+    
+    for i, result in enumerate(results):
+        if not isinstance(result, dict):
+            continue
+            
+        # Handle different possible key formats (case-insensitive)
+        filename = result.get('filename') or result.get('FILENAME')
+        file_url = result.get('file_url') or result.get('FILE_URL')
+        chunk_content = (result.get('contextualized_chunk') or 
+                        result.get('CONTEXTUALIZED_CHUNK') or 
+                        result.get('chunk') or 
+                        result.get('CHUNK'))
+        
+        if not filename:
+            continue
+            
+        # Create a clean document name for display
+        display_name = filename.replace('.pdf', '').replace('.docx', '').replace('.txt', '')
+        if len(display_name) > 50:
+            display_name = display_name[:47] + "..."
+        
+        if filename not in document_chunks:
+            document_chunks[filename] = {
+                'display_name': display_name,
+                'file_url': file_url,
+                'chunks': [],
+                'first_seen_index': i
+            }
+        
+        # Add chunk preview (first 150 chars)
+        if chunk_content:
+            # Clean chunk content and create preview
+            clean_chunk = chunk_content.replace('\n', ' ').strip()
+            if len(clean_chunk) > 150:
+                chunk_preview = clean_chunk[:147] + "..."
+            else:
+                chunk_preview = clean_chunk
+            
+            # Only add unique chunk previews
+            if chunk_preview not in [chunk['preview'] for chunk in document_chunks[filename]['chunks']]:
+                document_chunks[filename]['chunks'].append({
+                    'preview': chunk_preview,
+                    'index': i + 1
+                })
+    
+    if not document_chunks:
+        return ""
+    
+    # Sort documents by first appearance in results
+    sorted_docs = sorted(document_chunks.items(), 
+                        key=lambda x: x[1]['first_seen_index'])
+    
+    # Build enhanced references section
+    references_md = "###### 📚 Sources & References\n\n"
+    
+    for filename, doc_info in sorted_docs:
+        display_name = doc_info['display_name']
+        file_url = doc_info['file_url']
+        chunks = doc_info['chunks']
+        
+        # Document header with link
+        if file_url:
+            references_md += f"**📄 [{display_name}]({file_url})**\n"
+        else:
+            references_md += f"**📄 {display_name}**\n"
+        
+        # Add chunk previews
+        if chunks:
+            for chunk in chunks[:3]:  # Limit to top 3 chunks per document
+                references_md += f"- *Excerpt {chunk['index']}:* \"{chunk['preview']}\"\n"
+        
+        references_md += "\n"
+    
+    # Add summary if many documents
+    if len(sorted_docs) > 1:
+        total_chunks = sum(len(doc_info['chunks']) for _, doc_info in sorted_docs)
+        references_md += f"*📊 Total: {len(sorted_docs)} documents, {total_chunks} relevant excerpts*\n"
+    
+    return references_md
+
+
 def main():
     st.title(f":speech_balloon: Chatbot with Snowflake Cortex")
 
@@ -700,15 +797,11 @@ def main():
             with st.spinner("Analyzing question and searching documents..."):
                 generated_response, results = create_prompt(question)
                 
-                # build references table for citation
-                markdown_table = "###### References \n\n| PDF Title | URL |\n|-------|-----|\n"
-                for ref in results:
-                    if 'filename' in ref and 'file_url' in ref:
-                        markdown_table += f"| {ref['filename']} | [Link]({ref['file_url']}) |\n"
+                # Build enhanced references with chunk previews and deduplication
+                references_section = build_enhanced_references(results)
                 
-                # Only add references table if we have valid references
-                if len([r for r in results if 'filename' in r and 'file_url' in r]) > 0:
-                    message_placeholder.markdown(generated_response + "\n\n" + markdown_table)
+                if references_section:
+                    message_placeholder.markdown(generated_response + "\n\n" + references_section)
                 else:
                     message_placeholder.markdown(generated_response)
 
