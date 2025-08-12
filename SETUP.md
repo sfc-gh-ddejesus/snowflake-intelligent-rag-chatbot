@@ -38,7 +38,7 @@ Additional permissions for full AI Observability features (`rag_demo_with_evalua
 ```sql
 -- TruLens observability features (OPTIONAL)
 GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
-GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO your_user;
+GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO USER your_user;
 GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO your_role;
 ```
 

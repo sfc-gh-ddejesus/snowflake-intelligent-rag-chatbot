@@ -104,7 +104,7 @@ Additional privileges for complete AI Observability features:
 ```sql
 -- Optional for full TruLens integration
 GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO USER your_user;
-GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO USER your_user;
+GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO your_role;
 GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
 ```
 
