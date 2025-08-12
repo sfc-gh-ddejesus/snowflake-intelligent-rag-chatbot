@@ -1,0 +1,16 @@
+# Core Streamlit and Snowflake dependencies
+streamlit>=1.28.0
+snowflake-snowpark-python>=1.12.0
+snowflake-connector-python>=3.5.0
+
+# Additional Python packages
+pandas>=2.0.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+
+# Optional: For enhanced development experience
+plotly>=5.15.0
+altair>=5.0.0
+
+# For JSON processing (already included in Python 3.11+)
+# json is built-in, no additional package needed
