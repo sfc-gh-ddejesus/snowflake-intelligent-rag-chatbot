@@ -440,6 +440,36 @@ def main():
         # Register with TruLens if available (optional - app works without it)
         if TRULENS_AVAILABLE:
             try:
+                # Debug: Check current session context
+                current_role = session.sql("SELECT CURRENT_ROLE()").collect()[0][0]
+                current_db = session.sql("SELECT CURRENT_DATABASE()").collect()[0][0]
+                current_schema = session.sql("SELECT CURRENT_SCHEMA()").collect()[0][0]
+                
+                st.sidebar.write(f"🔍 **Session Context Debug:**")
+                st.sidebar.write(f"- Role: {current_role}")
+                st.sidebar.write(f"- Database: {current_db}")
+                st.sidebar.write(f"- Schema: {current_schema}")
+                
+                # Test temp stage creation directly
+                try:
+                    session.sql("CREATE TEMP STAGE IF NOT EXISTS test_trulens_stage").collect()
+                    st.sidebar.write("✅ Direct temp stage creation: SUCCESS")
+                    session.sql("DROP STAGE IF EXISTS test_trulens_stage").collect()
+                    
+                    # Pre-create the TruLens stage as a workaround
+                    session.sql("CREATE TEMP STAGE IF NOT EXISTS trulens_spans").collect()
+                    st.sidebar.write("✅ Pre-created trulens_spans stage")
+                    
+                except Exception as stage_test_error:
+                    st.sidebar.write(f"❌ Direct temp stage creation: {stage_test_error}")
+                    
+                    # Fallback: Try creating a permanent stage instead
+                    try:
+                        session.sql("CREATE STAGE IF NOT EXISTS trulens_spans").collect()
+                        st.sidebar.write("✅ Created permanent trulens_spans stage as fallback")
+                    except Exception as perm_stage_error:
+                        st.sidebar.write(f"❌ Permanent stage creation also failed: {perm_stage_error}")
+                
                 tru_connector = SnowflakeConnector(snowpark_session=session)
                 st.session_state.tru_app = TruApp(
                     st.session_state.rag_chatbot,
