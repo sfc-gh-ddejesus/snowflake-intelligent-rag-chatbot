@@ -423,8 +423,32 @@ def main():
                 st.sidebar.success("✅ TruLens observability active")
                 st.session_state.trulens_registered = True
             except Exception as e:
+                error_msg = str(e)
                 st.sidebar.warning(f"⚠️ TruLens registration failed: {e}")
-                st.sidebar.info("ℹ️ App continues to work with basic tracing only")
+                
+                # Provide specific guidance for common errors
+                if "temporary STAGE" in error_msg or "TEMP STAGE" in error_msg:
+                    st.sidebar.info("""
+                    **💡 Temporary Stage Issue**: Your Snowflake environment doesn't support temporary stages.
+                    
+                    **Solutions**:
+                    1. **Continue as-is** - App works perfectly with user feedback
+                    2. **Request ACCOUNTADMIN** to grant: `GRANT CREATE STAGE ON SCHEMA your_schema TO your_role`
+                    3. **Use different Snowflake edition** that supports temporary objects
+                    """)
+                elif "permission" in error_msg.lower() or "privilege" in error_msg.lower():
+                    st.sidebar.info("""
+                    **💡 Permission Issue**: Missing required privileges for TruLens.
+                    
+                    **Optional grants** (for full observability):
+                    ```sql
+                    GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO USER your_user;
+                    GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
+                    ```
+                    """)
+                else:
+                    st.sidebar.info("ℹ️ App continues to work with basic tracing and user feedback")
+                
                 st.session_state.trulens_registered = False
     
     # Display evaluation sidebar

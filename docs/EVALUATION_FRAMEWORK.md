@@ -121,6 +121,13 @@ GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
 
 The optional privileges only enable advanced TruLens traces in Snowsight's AI Observability dashboard.
 
+#### **⚠️ Known Issue: Temporary Stages**
+If you encounter `Unsupported statement type 'temporary STAGE'` error:
+- **Root Cause**: Snowflake doesn't support temporary stages (TruLens limitation)
+- **Impact**: Full TruLens observability disabled, but app works perfectly with user feedback
+- **Workaround**: None required - the app gracefully handles this and continues working
+- **Alternative**: Contact your Snowflake admin about creating permanent stages for TruLens
+
 ### **2. Install Dependencies**
 
 ```bash

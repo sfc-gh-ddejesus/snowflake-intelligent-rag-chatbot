@@ -151,6 +151,8 @@ pip install trulens-core==1.5.2 trulens-providers-cortex==1.5.2
 streamlit run rag_demo_with_evaluation.py
 ```
 
+**⚠️ Known Issue**: If you encounter `Unsupported statement type 'temporary STAGE'` error, this is a Snowflake limitation (temporary stages not supported). The app gracefully handles this and continues working perfectly with user feedback collection instead of full TruLens observability.
+
 ### **📈 View Results**
 Navigate to **Snowsight → AI & ML → Evaluations** to view:
 - Detailed trace analysis
