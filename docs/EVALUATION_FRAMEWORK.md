@@ -88,14 +88,33 @@ The framework implements the industry-standard **RAG Triad** for comprehensive e
 
 ### **1. Prerequisites**
 
-Ensure you have the required privileges in Snowflake:
+#### **✅ Required Privileges (Core Functionality)**
+Essential for basic RAG operations:
 
 ```sql
--- Required roles and privileges
+-- Required for all versions
 GRANT ROLE SNOWFLAKE.CORTEX_USER TO USER your_user;
+GRANT USAGE ON DATABASE your_database TO your_role;
+GRANT USAGE ON SCHEMA your_schema TO your_role;
+```
+
+#### **🔍 Optional Privileges (Full TruLens Observability)**
+Additional privileges for complete AI Observability features:
+
+```sql
+-- Optional for full TruLens integration
 GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO USER your_user;
 GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO USER your_user;
+GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
 ```
+
+**💡 Note**: The evaluation framework works excellently **without** the optional privileges! You get:
+- Complete RAG functionality
+- User feedback collection (5-star ratings + comments)
+- Local performance metrics and analytics
+- Enhanced references with document previews
+
+The optional privileges only enable advanced TruLens traces in Snowsight's AI Observability dashboard.
 
 ### **2. Install Dependencies**
 

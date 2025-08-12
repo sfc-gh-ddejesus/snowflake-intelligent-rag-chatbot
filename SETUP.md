@@ -15,6 +15,41 @@ This guide will walk you through setting up the Intelligent Multi-Stage RAG Chat
 - **Git** for version control
 - **Streamlit** for the web interface
 
+## 🔐 **Permission Requirements**
+
+### **✅ Required (Core RAG Functionality)**
+Essential permissions for the basic chatbot (`rag_demo.py`):
+
+```sql
+-- Cortex functions access
+GRANT ROLE SNOWFLAKE.CORTEX_USER TO USER your_user;
+
+-- Database and schema permissions  
+GRANT USAGE ON DATABASE your_database TO your_role;
+GRANT USAGE ON SCHEMA your_schema TO your_role;
+GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA your_schema TO your_role;
+GRANT CREATE TABLE ON SCHEMA your_schema TO your_role;
+GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA your_schema TO your_role;
+```
+
+### **🔍 Optional (Enhanced TruLens Observability)**
+Additional permissions for full AI Observability features (`rag_demo_with_evaluation.py`):
+
+```sql
+-- TruLens observability features (OPTIONAL)
+GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
+GRANT APPLICATION ROLE SNOWFLAKE.AI_OBSERVABILITY_EVENTS_LOOKUP TO your_user;
+GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO your_role;
+```
+
+**💡 Important**: The enhanced evaluation app works perfectly **without** these optional permissions! You'll get:
+- ✅ Complete RAG functionality
+- ✅ User feedback system (5-star ratings)
+- ✅ Local performance metrics
+- ✅ Enhanced references and citations
+
+The optional permissions only enable full TruLens traces in Snowsight's AI Observability dashboard.
+
 ## 🎯 **Architecture Overview**
 
 The setup creates two Cortex Search services:
