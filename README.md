@@ -94,8 +94,8 @@ This implementation represents **Advanced Agentic RAG** with multiple sophistica
 
 ### 1. Clone and Setup
 ```bash
-git clone https://github.com/your-username/intelligent-rag-chatbot.git
-cd intelligent-rag-chatbot
+git clone https://github.com/sfc-gh-ddejesus/snowflake-intelligent-rag-chatbot.git
+cd snowflake-intelligent-rag-chatbot
 pip install -r requirements.txt
 ```
 
@@ -113,7 +113,7 @@ streamlit run rag_demo.py
 ## 📁 **Repository Structure**
 
 ```
-intelligent-rag-chatbot/
+snowflake-intelligent-rag-chatbot/
 ├── README.md                 # This file
 ├── SETUP.md                 # Detailed setup instructions
 ├── ARCHITECTURE.md          # Technical architecture details
@@ -175,9 +175,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 📞 **Support**
 
-- 📧 **Issues**: [GitHub Issues](https://github.com/your-username/intelligent-rag-chatbot/issues)
+- 📧 **Issues**: [GitHub Issues](https://github.com/sfc-gh-ddejesus/snowflake-intelligent-rag-chatbot/issues)
 - 📖 **Documentation**: [Setup Guide](SETUP.md) | [Architecture](ARCHITECTURE.md)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/intelligent-rag-chatbot/discussions)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/sfc-gh-ddejesus/snowflake-intelligent-rag-chatbot/discussions)
 
 ---
 

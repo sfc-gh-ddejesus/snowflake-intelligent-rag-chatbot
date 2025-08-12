@@ -231,8 +231,8 @@ SELECT SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
 ### **4.1 Clone the Repository**
 
 ```bash
-git clone https://github.com/your-username/intelligent-rag-chatbot.git
-cd intelligent-rag-chatbot
+git clone https://github.com/sfc-gh-ddejesus/snowflake-intelligent-rag-chatbot.git
+cd snowflake-intelligent-rag-chatbot
 ```
 
 ### **4.2 Install Dependencies**
