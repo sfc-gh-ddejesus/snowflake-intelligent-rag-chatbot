@@ -238,9 +238,12 @@ def init_session_state():
 def create_evaluation_dataset(session):
     """Create sample evaluation dataset for batch testing."""
     try:
-        # Create evaluation dataset table
+        # Ensure we're in the right schema for observability
+        session.sql("USE SCHEMA AI_OBSERVABILITY_DB.EVALUATION_SCHEMA").collect()
+        
+        # Create evaluation dataset table (matching official notebook column naming)
         session.sql("""
-        CREATE TABLE IF NOT EXISTS AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET (
+        CREATE TABLE IF NOT EXISTS RAG_EVALUATION_DATASET (
             query STRING,
             ground_truth_response STRING,
             category STRING,
@@ -277,11 +280,11 @@ def create_evaluation_dataset(session):
         ]
         
         # Insert sample data if table is empty
-        count_result = session.sql("SELECT COUNT(*) FROM AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET").collect()
+        count_result = session.sql("SELECT COUNT(*) FROM RAG_EVALUATION_DATASET").collect()
         if count_result[0][0] == 0:
             for item in sample_data:
                 session.sql(f"""
-                INSERT INTO AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET 
+                INSERT INTO RAG_EVALUATION_DATASET 
                 (query, ground_truth_response, category, difficulty)
                 VALUES ('{item["query"]}', '{item["ground_truth_response"]}', '{item["category"]}', '{item["difficulty"]}')
                 """).collect()
@@ -301,10 +304,10 @@ def create_evaluation_run(tru_app, run_name="streamlit_batch_eval"):
             label="legal_rag_evaluation",
             source_type="TABLE",
             dataset_spec={
-                "RECORD_ROOT.INPUT": "query",
-                "RECORD_ROOT.GROUND_TRUTH_OUTPUT": "ground_truth_response",
+                "input": "query",                      # Simple column names like official notebook
+                "ground_truth_output": "ground_truth_response",
             },
-            llm_judge_name="claude-4-sonnet"  # Use Claude as LLM judge
+            llm_judge_name="mistral-large2"  # Use same LLM judge as official notebook
         )
         
         run: Run = tru_app.add_run(run_config=run_config)
@@ -503,14 +506,29 @@ def display_evaluation_sidebar():
                     with st.sidebar.spinner("Running evaluation..."):
                         eval_run = create_evaluation_run(st.session_state.tru_app)
                         if eval_run:
-                            eval_run.start()
-                            st.sidebar.success("✅ Evaluation completed!")
-                            
-                            # Compute metrics
-                            if compute_evaluation_metrics(eval_run):
-                                st.sidebar.success("📊 Metrics computed!")
-                            else:
-                                st.sidebar.error("❌ Metrics computation failed")
+                            # Scale up warehouse for evaluation (like official notebook)
+                            try:
+                                current_wh = session.get_current_warehouse().strip('"')
+                                st.sidebar.write(f"🏭 Scaling up warehouse: {current_wh}")
+                                session.sql(f"ALTER WAREHOUSE {current_wh} SET WAREHOUSE_SIZE='LARGE'").collect()
+                                
+                                # Run evaluation
+                                eval_run.start()
+                                st.sidebar.success("✅ Evaluation completed!")
+                                
+                                # Compute metrics
+                                if compute_evaluation_metrics(eval_run):
+                                    st.sidebar.success("📊 Metrics computed!")
+                                else:
+                                    st.sidebar.error("❌ Metrics computation failed")
+                                    
+                            finally:
+                                # Scale back down
+                                try:
+                                    session.sql(f"ALTER WAREHOUSE {current_wh} SET WAREHOUSE_SIZE='X-SMALL'").collect()
+                                    st.sidebar.write(f"🏭 Scaled back warehouse: {current_wh}")
+                                except:
+                                    pass
                         else:
                             st.sidebar.error("❌ Evaluation run creation failed")
     elif TRULENS_AVAILABLE:
@@ -595,14 +613,18 @@ def main():
                     except Exception as perm_stage_error:
                         st.sidebar.write(f"❌ Permanent stage creation also failed: {perm_stage_error}")
                 
-                # TruLens registration with comprehensive fallback handling
+                # Ensure proper schema context for observability (like official notebook)
+                session.sql("USE SCHEMA AI_OBSERVABILITY_DB.EVALUATION_SCHEMA").collect()
+                st.sidebar.write(f"📊 Using observability schema: {session.get_current_database()}.{session.get_current_schema()}")
+                
+                # TruLens registration following official notebook pattern
                 tru_connector = SnowflakeConnector(snowpark_session=session)
                 st.session_state.tru_app = TruApp(
                     st.session_state.rag_chatbot,
                     app_name="intelligent_rag_chatbot",
                     app_version="streamlit_with_feedback",
-                    connector=tru_connector,
-                    main_method=st.session_state.rag_chatbot.intelligent_search_orchestrator
+                    connector=tru_connector
+                    # NO main_method - let TruLens auto-detect entry point from RECORD_ROOT span
                 )
                 st.sidebar.success("✅ TruLens observability active")
                 st.session_state.trulens_registered = True
