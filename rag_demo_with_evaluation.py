@@ -202,7 +202,7 @@ class InstrumentedRAGChatbot:
             }
         
         # Generate response
-        context_str = "\\n\\n".join([result.get('contextualized_chunk', '') for result in chunk_results])
+        context_str = "\n\n".join([result.get('contextualized_chunk', '') for result in chunk_results])
         response = self.generate_completion(user_question, context_str)
         
         return {
@@ -282,7 +282,7 @@ def build_enhanced_references(results):
             }
             
         if chunk_content:
-            clean_chunk = chunk_content.replace('\\n', ' ').strip()
+            clean_chunk = chunk_content.replace('\n', ' ').strip()
             chunk_preview = clean_chunk[:147] + "..." if len(clean_chunk) > 150 else clean_chunk
             
             if chunk_preview not in [chunk['preview'] for chunk in document_chunks[filename]['chunks']]:
@@ -295,7 +295,7 @@ def build_enhanced_references(results):
         return ""
     
     sorted_docs = sorted(document_chunks.items(), key=lambda x: x[1]['first_seen_index'])
-    references_md = "###### 📚 Sources & References\\n\\n"
+    references_md = "###### 📚 Sources & References\n\n"
     
     for filename, doc_info in sorted_docs:
         display_name = doc_info['display_name']
@@ -303,18 +303,18 @@ def build_enhanced_references(results):
         chunks = doc_info['chunks']
         
         if file_url:
-            references_md += f"**📄 [{display_name}]({file_url})**\\n"
+            references_md += f"**📄 [{display_name}]({file_url})**\n"
         else:
-            references_md += f"**📄 {display_name}**\\n"
+            references_md += f"**📄 {display_name}**\n"
             
         if chunks:
             for chunk in chunks[:3]:  # Show up to 3 chunks per document
-                references_md += f"- *Excerpt {chunk['index']}:* \\"{chunk['preview']}\\"\\n"
-        references_md += "\\n"
+                references_md += f"- *Excerpt {chunk['index']}:* \"{chunk['preview']}\"\n"
+        references_md += "\n"
     
     if len(sorted_docs) > 1:
         total_chunks = sum(len(doc_info['chunks']) for _, doc_info in sorted_docs)
-        references_md += f"*📊 Total: {len(sorted_docs)} documents, {total_chunks} relevant excerpts*\\n"
+        references_md += f"*📊 Total: {len(sorted_docs)} documents, {total_chunks} relevant excerpts*\n"
     
     return references_md
 
