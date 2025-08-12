@@ -333,9 +333,6 @@ def display_feedback_form(query: str, response: str, message_idx: int):
 
 def display_evaluation_sidebar():
     """Display evaluation metrics and feedback summary in sidebar."""
-    if not TRULENS_AVAILABLE:
-        return
-        
     st.sidebar.markdown("## 📊 Evaluation Dashboard")
     
     # Feedback summary
@@ -352,15 +349,39 @@ def display_evaluation_sidebar():
     
     # TruLens integration info
     st.sidebar.markdown("### 🔍 AI Observability")
-    st.sidebar.markdown("""
-    This session is being traced with TruLens for:
-    - Query intent analysis
-    - Retrieval performance
-    - Response quality
-    - User satisfaction
     
-    View detailed traces in Snowsight → AI & ML → Evaluations
-    """)
+    # Check if TruLens is properly registered
+    trulens_status = st.session_state.get('trulens_registered', False)
+    
+    if TRULENS_AVAILABLE and trulens_status:
+        st.sidebar.markdown("""
+        ✅ **TruLens Active**: This session is being traced for:
+        - Query intent analysis
+        - Retrieval performance  
+        - Response quality
+        - User satisfaction
+        
+        📊 View detailed traces in **Snowsight → AI & ML → Evaluations**
+        """)
+    elif TRULENS_AVAILABLE:
+        st.sidebar.markdown("""
+        ⚠️ **TruLens Registration Failed**: Using basic tracing only.
+        
+        📝 **User feedback** and **local metrics** are still available.
+        
+        💡 **Tip**: Check Snowflake permissions for temporary stages.
+        """)
+    else:
+        st.sidebar.markdown("""
+        📊 **Basic Evaluation Mode**: 
+        - User feedback collection active
+        - Local performance metrics available
+        
+        🚀 **Install TruLens** for advanced observability:
+        ```bash
+        pip install trulens-core==1.5.2
+        ```
+        """)
 
 def main():
     """Main Streamlit application with enhanced evaluation capabilities."""
@@ -371,7 +392,14 @@ def main():
     )
     
     st.title("🤖 Intelligent Multi-Stage RAG Chatbot")
-    st.caption("🔍 **AI Observability Enabled** | Powered by Snowflake Cortex + TruLens")
+    
+    # Dynamic caption based on TruLens status
+    if TRULENS_AVAILABLE and st.session_state.get('trulens_registered', False):
+        st.caption("🔍 **AI Observability Enabled** | Powered by Snowflake Cortex + TruLens")
+    elif TRULENS_AVAILABLE:
+        st.caption("📊 **Evaluation Mode** | Powered by Snowflake Cortex + User Feedback")
+    else:
+        st.caption("🚀 **Enhanced RAG** | Powered by Snowflake Cortex")
     
     # Initialize session state and get Snowflake session
     init_session_state()
@@ -382,7 +410,7 @@ def main():
     if "rag_chatbot" not in st.session_state:
         st.session_state.rag_chatbot = InstrumentedRAGChatbot(session)
         
-        # Register with TruLens if available
+        # Register with TruLens if available (optional - app works without it)
         if TRULENS_AVAILABLE:
             try:
                 tru_connector = SnowflakeConnector(snowpark_session=session)
@@ -393,8 +421,11 @@ def main():
                     connector=tru_connector
                 )
                 st.sidebar.success("✅ TruLens observability active")
+                st.session_state.trulens_registered = True
             except Exception as e:
                 st.sidebar.warning(f"⚠️ TruLens registration failed: {e}")
+                st.sidebar.info("ℹ️ App continues to work with basic tracing only")
+                st.session_state.trulens_registered = False
     
     # Display evaluation sidebar
     display_evaluation_sidebar()
