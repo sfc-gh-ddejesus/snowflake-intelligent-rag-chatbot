@@ -14,6 +14,7 @@ try:
     from trulens.otel.semconv.trace import SpanAttributes
     from trulens.apps.app import TruApp
     from trulens.connectors.snowflake import SnowflakeConnector
+    from trulens.core.run import Run, RunConfig
     TRULENS_AVAILABLE = True
     # Enable TruLens OpenTelemetry tracing
     os.environ["TRULENS_OTEL_TRACING"] = "1"
@@ -234,6 +235,97 @@ def init_session_state():
     if "session_id" not in st.session_state:
         st.session_state.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+def create_evaluation_dataset(session):
+    """Create sample evaluation dataset for batch testing."""
+    try:
+        # Create evaluation dataset table
+        session.sql("""
+        CREATE TABLE IF NOT EXISTS AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET (
+            query STRING,
+            ground_truth_response STRING,
+            category STRING,
+            difficulty STRING
+        )
+        """).collect()
+        
+        # Sample evaluation queries for legal document analysis
+        sample_data = [
+            {
+                "query": "What are the termination clauses in the NETGEAR distributor agreement?",
+                "ground_truth_response": "The NETGEAR distributor agreement contains specific termination provisions that allow for termination with notice under certain conditions.",
+                "category": "termination",
+                "difficulty": "medium"
+            },
+            {
+                "query": "Compare the IP ownership provisions between the development and endorsement agreements",
+                "ground_truth_response": "The development agreement typically assigns IP rights to the developer, while the endorsement agreement maintains IP with the original owner.",
+                "category": "comparison", 
+                "difficulty": "hard"
+            },
+            {
+                "query": "What are the liability limitations in the hosting agreement?",
+                "ground_truth_response": "The hosting agreement includes liability caps and exclusions for certain types of damages.",
+                "category": "liability",
+                "difficulty": "medium"
+            },
+            {
+                "query": "What governing law provisions are common across all agreements?",
+                "ground_truth_response": "Most agreements specify the jurisdiction and governing law for dispute resolution.",
+                "category": "general",
+                "difficulty": "easy"
+            }
+        ]
+        
+        # Insert sample data if table is empty
+        count_result = session.sql("SELECT COUNT(*) FROM AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET").collect()
+        if count_result[0][0] == 0:
+            for item in sample_data:
+                session.sql(f"""
+                INSERT INTO AI_OBSERVABILITY_DB.EVALUATION_SCHEMA.RAG_EVALUATION_DATASET 
+                (query, ground_truth_response, category, difficulty)
+                VALUES ('{item["query"]}', '{item["ground_truth_response"]}', '{item["category"]}', '{item["difficulty"]}')
+                """).collect()
+            
+        return True
+    except Exception as e:
+        st.error(f"Error creating evaluation dataset: {e}")
+        return False
+
+def create_evaluation_run(tru_app, run_name="streamlit_batch_eval"):
+    """Create and execute a TruLens evaluation run."""
+    try:
+        run_config = RunConfig(
+            run_name=run_name,
+            dataset_name="RAG_EVALUATION_DATASET",
+            description="Batch evaluation of intelligent RAG chatbot on legal documents",
+            label="legal_rag_evaluation",
+            source_type="TABLE",
+            dataset_spec={
+                "RECORD_ROOT.INPUT": "query",
+                "RECORD_ROOT.GROUND_TRUTH_OUTPUT": "ground_truth_response",
+            },
+            llm_judge_name="claude-4-sonnet"  # Use Claude as LLM judge
+        )
+        
+        run: Run = tru_app.add_run(run_config=run_config)
+        return run
+    except Exception as e:
+        st.error(f"Error creating evaluation run: {e}")
+        return None
+
+def compute_evaluation_metrics(run):
+    """Compute RAG triad metrics on the evaluation run."""
+    try:
+        run.compute_metrics([
+            "answer_relevance",
+            "context_relevance", 
+            "groundedness",
+        ])
+        return True
+    except Exception as e:
+        st.error(f"Error computing metrics: {e}")
+        return False
+
 def save_user_feedback(session, query: str, response: str, rating: int, comments: str = ""):
     """Save user feedback to Snowflake database."""
     try:
@@ -394,6 +486,33 @@ def display_evaluation_sidebar():
         
         📊 View detailed traces in **Snowsight → AI & ML → Evaluations**
         """)
+        
+        # Batch Evaluation Controls
+        st.sidebar.markdown("#### 🧪 Batch Evaluation")
+        
+        col1, col2 = st.sidebar.columns(2)
+        
+        with col1:
+            if st.button("📝 Setup Dataset", help="Create evaluation dataset"):
+                if create_evaluation_dataset(session):
+                    st.sidebar.success("✅ Dataset created!")
+                    
+        with col2:
+            if st.button("🚀 Run Eval", help="Execute batch evaluation"):
+                if 'tru_app' in st.session_state:
+                    with st.sidebar.spinner("Running evaluation..."):
+                        eval_run = create_evaluation_run(st.session_state.tru_app)
+                        if eval_run:
+                            eval_run.start()
+                            st.sidebar.success("✅ Evaluation completed!")
+                            
+                            # Compute metrics
+                            if compute_evaluation_metrics(eval_run):
+                                st.sidebar.success("📊 Metrics computed!")
+                            else:
+                                st.sidebar.error("❌ Metrics computation failed")
+                        else:
+                            st.sidebar.error("❌ Evaluation run creation failed")
     elif TRULENS_AVAILABLE:
         st.sidebar.markdown("""
         ⚠️ **TruLens Registration Failed**: Using basic tracing only.
