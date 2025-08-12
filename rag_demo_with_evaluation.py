@@ -83,9 +83,15 @@ class InstrumentedRAGChatbot:
     def query_metadata_search_service(self, query: str, limit: int = 50) -> List[Dict]:
         """Query metadata search service with optional instrumentation."""
         try:
+            # Get current database and schema dynamically
+            db, schema = self.session.get_current_database(), self.session.get_current_schema()
+            
+            # Debug information
+            st.sidebar.write(f"🔍 Using database: {db}, schema: {schema}")
+            
             search_service = (
-                self.root.databases["CORTEX_SEARCH_DEMO"]
-                .schemas["DATA"]
+                self.root.databases[db]
+                .schemas[schema]
                 .cortex_search_services["CS_DOCUMENTS_METADATA"]
             )
             
@@ -104,9 +110,12 @@ class InstrumentedRAGChatbot:
     def query_chunks_search_service(self, query: str, relevant_filenames: List[str], limit: int = 10) -> List[Dict]:
         """Query chunks search service with filtering and optional instrumentation."""
         try:
+            # Get current database and schema dynamically
+            db, schema = self.session.get_current_database(), self.session.get_current_schema()
+            
             search_service = (
-                self.root.databases["CORTEX_SEARCH_DEMO"]
-                .schemas["DATA"]
+                self.root.databases[db]
+                .schemas[schema]
                 .cortex_search_services["CS_DOCUMENTS_CHUNKS"]
             )
             
