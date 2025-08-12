@@ -69,21 +69,35 @@ This implementation represents **Advanced Agentic RAG** with multiple sophistica
 
 ### Single Document Queries
 ```
-"What are the terms in the CHASE AFFILIATE AGREEMENT?"
-"Tell me about the privacy policy requirements"
+"What are the termination clauses in the NETGEAR distributor agreement?"
+"What is the governing law for the development agreement?"
+"What are the liability limitations in the hosting agreement?"
 ```
 
 ### Comparison Queries ⭐
 ```
-"Compare the CHASE AFFILIATE AGREEMENT and Pizza Fusion Holdings, Inc. Franchise Agreement"
-"What are the differences between Contract A and Contract B?"
+"Compare the termination provisions between the agency agreement and distributor agreement"
+"What are the differences in IP ownership between the development and endorsement agreements?"
+"How do the liability caps vary across the hosting and distribution agreements?"
 ```
 
 ### Multi-Document Queries
 ```
-"What do all the franchise agreements say about termination?"
-"Compare the liability clauses across all contracts"
+"What are the common governing law provisions across all agreements?"
+"Which contracts have the most restrictive non-compete clauses?"
+"How do renewal terms vary across different contract types?"
 ```
+
+## 📊 **Sample Dataset: CUAD v1**
+
+This repository includes sample legal contracts from the [**Contract Understanding Atticus Dataset (CUAD) v1**](https://www.atticusprojectai.org/cuad):
+
+- **📄 Real Commercial Contracts**: Agency, Development, Distribution, Endorsement, and Hosting agreements
+- **⚖️ Expert Annotations**: 13,000+ labels across 41 legal clause categories
+- **🎯 Perfect for Testing**: Demonstrates advanced comparison and analysis capabilities
+- **📚 Educational Value**: Learn from real-world legal document complexity
+
+**See detailed information**: [CUAD Sample Data Documentation](docs/CUAD_SAMPLE_DATA.md)
 
 ## 🛠️ **Quick Start**
 
@@ -120,8 +134,14 @@ snowflake-intelligent-rag-chatbot/
 ├── requirements.txt         # Python dependencies
 ├── rag_demo.py             # Main Streamlit application
 ├── setup_notebook.ipynb    # Snowflake setup notebook
+├── CUAD_v1/                # Sample legal contracts dataset
+│   ├── CUAD_v1_README.txt  # Official CUAD documentation
+│   └── full_contract_pdf/  # Sample PDF contracts
+│       ├── Part_I/         # Agency, Development agreements
+│       ├── Part_II/        # Distribution, Hosting agreements  
+│       └── Part_III/       # Additional contract samples
 ├── docs/                   # Additional documentation
-│   ├── diagrams/           # Architecture diagrams
+│   ├── CUAD_SAMPLE_DATA.md # CUAD dataset documentation
 │   └── examples/           # Usage examples
 └── .gitignore              # Git ignore rules
 ```

@@ -21,6 +21,16 @@ The setup creates two Cortex Search services:
 1. **`CS_DOCUMENTS_METADATA`** - Searches document metadata for document discovery
 2. **`CS_DOCUMENTS_CHUNKS`** - Searches contextualized chunks for content retrieval
 
+## 📊 **About the Sample Data**
+
+This repository includes sample legal contracts from the [**Contract Understanding Atticus Dataset (CUAD) v1**](https://www.atticusprojectai.org/cuad), featuring:
+
+- **Real Commercial Contracts**: Agency, Development, Distribution, Endorsement, and Hosting agreements
+- **Expert Annotations**: 13,000+ labels across 41 legal clause categories by experienced lawyers
+- **Perfect for Testing**: Ideal for demonstrating advanced comparison and analysis capabilities
+
+**📚 For detailed information**: See [CUAD Sample Data Documentation](docs/CUAD_SAMPLE_DATA.md)
+
 ## 📁 **Step 1: Prepare Your Documents**
 
 ### **1.1 Upload Documents to Snowflake Stage**
@@ -33,8 +43,12 @@ CREATE OR REPLACE STAGE documents
 DIRECTORY = (ENABLE = TRUE)
 ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
 
--- Upload documents using SnowSQL, web interface, or other methods
--- Example using SnowSQL:
+-- Upload CUAD sample documents using SnowSQL:
+PUT file://CUAD_v1/full_contract_pdf/Part_I/* @documents;
+PUT file://CUAD_v1/full_contract_pdf/Part_II/* @documents;
+PUT file://CUAD_v1/full_contract_pdf/Part_III/* @documents;
+
+-- Or upload your own documents:
 -- PUT file://path/to/your/documents/* @documents;
 ```
 
