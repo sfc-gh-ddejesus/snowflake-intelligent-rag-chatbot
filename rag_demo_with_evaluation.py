@@ -30,6 +30,17 @@ except ImportError:
 
 MODELS = ["claude-4-sonnet"]
 
+def conditional_instrument():
+    """Conditional decorator that only applies instrumentation if TruLens is available."""
+    def decorator(func):
+        if TRULENS_AVAILABLE:
+            try:
+                return instrument()(func)  # Basic instrumentation
+            except (AttributeError, ImportError):
+                return func  # Fallback if instrumentation fails
+        return func
+    return decorator
+
 class InstrumentedRAGChatbot:
     """
     Enhanced RAG chatbot with TruLens instrumentation and user feedback collection.
@@ -38,21 +49,6 @@ class InstrumentedRAGChatbot:
     def __init__(self, session):
         self.session = session
         self.root = Root(session)
-        
-    def conditional_instrument(self, span_type=None, attributes=None):
-        """Conditional decorator that only applies instrumentation if TruLens is available."""
-        def decorator(func):
-            if TRULENS_AVAILABLE:
-                try:
-                    if span_type and attributes:
-                        return instrument(span_type=span_type, attributes=attributes)(func)
-                    else:
-                        return instrument()(func)  # Basic instrumentation without specific attributes
-                except (AttributeError, ImportError):
-                    # Fallback if specific span types are not available
-                    return instrument()(func)
-            return func
-        return decorator
     
     @conditional_instrument()
     def analyze_query_intent(self, user_question: str) -> Dict[str, Any]:
