@@ -5,7 +5,7 @@ An advanced **Agentic RAG** implementation using Snowflake Cortex Search that in
 ![Python](https://img.shields.io/badge/python-v3.11+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-v1.28+-red.svg)
 ![Snowflake](https://img.shields.io/badge/snowflake-cortex-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 
 ## 🎯 **What Makes This Special**
 
@@ -165,7 +165,7 @@ Enable debug mode in the sidebar to see:
 
 ## 📄 **License**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 **Acknowledgments**
 
