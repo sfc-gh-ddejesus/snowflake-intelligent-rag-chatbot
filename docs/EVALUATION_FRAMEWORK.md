@@ -108,6 +108,11 @@ GRANT CREATE EXTERNAL AGENT ON SCHEMA your_schema TO your_role;
 GRANT CREATE STAGE ON SCHEMA your_schema TO your_role;
 ```
 
+**📍 Schema Selection**: Use the same schema where your RAG objects (Cortex Search services, tables) are deployed. For example:
+- If RAG objects are in `CORTEX_SEARCH_DEMO.DATA`: use `CORTEX_SEARCH_DEMO.DATA`
+- If RAG objects are in `MY_DB.RAG_SCHEMA`: use `MY_DB.RAG_SCHEMA`
+- Alternatively, use the dedicated `AI_OBSERVABILITY_DB.EVALUATION_SCHEMA` created by the setup notebook
+
 **💡 Note**: The evaluation framework works excellently **without** the optional privileges! You get:
 - Complete RAG functionality
 - User feedback collection (5-star ratings + comments)
